@@ -33,7 +33,6 @@ def analyze():
     except subprocess.TimeoutExpired:
         return "The analysis process took too long and has timed out. Please try again later.", 408
 
-
 @app.route('/get_summary_data', methods=['GET'])
 def get_summary_data():
     bill_number = request.args.get('bill_number')
@@ -52,7 +51,6 @@ def get_summary_data():
                 }
 
     return jsonify(summary_data)
-
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -46,10 +46,14 @@ body {
 .recently-introduced-container,
 .recent-actions-container,
 .bill-data-container,
-.search-container {
+.search-results-container {
     height: 100%;
     padding: 0;
     overflow-y: auto;
+}
+
+.search-results-table{
+    height: 100%;
 }
 
 .table.dataTable th {

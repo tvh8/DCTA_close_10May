@@ -44,6 +44,29 @@ function loadRecentActionsData() {
     });
 }
 
+function loadSearchTableData() {
+    $.get('/get_bills', function (data) {
+        var searchData = data;
+        searchData.sort(function (a, b) {
+            return a['St'].localeCompare(b['St']);
+        });
+
+        var table = $('#search-table-body');
+        table.empty();
+        searchData.forEach(function (row) {
+            var tr = $('<tr>');
+            tr.append($('<td>').text(row['Bill #']));
+            tr.append($('<td>').text(row['St']));
+            tr.append($('<td>').text(row['Short Subject']));
+            // Add more columns as needed
+            tr.click(function () {
+                populateSelectedBillCard(row);
+            });
+            table.append(tr);
+        });
+    });
+}
+
 function populateSelectedBillCard(bill) {
     $('#selectedBillNumber').text(bill['Bill #']);
     $('#selectedBillState').text(bill['State']);
@@ -100,29 +123,6 @@ function analyzeAndUpdateContent(billNumber) {
   }, 1000); // Adjust this value to simulate the time it takes for the analysis process
 }
 
-function search() {
-    var query = $('#search-input').val();
-    $.post('/search', { query: query }, function (data) {
-        var searchResults = data;
-        var table = $('#search-results-table');
-        table.empty();
-        searchResults.forEach(function (row) {
-            var tr = $('<tr>');
-            tr.append($('<td>').text(row['Bill #']));
-            tr.append($('<td>').text(row['State']));
-            tr.append($('<td>').text(row['Subject']));
-            tr.append($('<td>').text(row['Introduced']));
-            tr.append($('<td>').text(row['Latest Action']));
-            tr.append($('<td>').text(row['Position']));
-            tr.append($('<td>').text(row['Primary Sponsor']));
-            tr.click(function () {
-                previewBill(row['Bill #']);
-            });
-            table.append(tr);
-        });
-    });
-}
-
 function previewBill(billId) {
     $.get('/preview/' + billId, function (data) {
         var bill = data[0];
@@ -161,6 +161,7 @@ $(document).ready(function () {
     });
     loadRecentData();
     loadRecentActionsData();
+    loadSearchTableData();
     $('#latestBillBtn').click(function () {
         const latestBillTextUrl = $(this).data('latestBillTextUrl');
         if (latestBillTextUrl) {
@@ -199,7 +200,7 @@ $(document).ready(function () {
 });
 
     loadRecentData();
-});
+});:ion
 
 function openTab(evt, tabName) {
   var i, tabcontent, tablinks;
@@ -218,3 +219,26 @@ function openTab(evt, tabName) {
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("defaultOpen").click();
 });
+
+function loadAllBillsData() {
+    $.get('/get_bills', function (data) {
+        var allBillsData = data;
+        allBillsData.sort(function (a, b) {
+            return a['St'].localeCompare(b['St']);
+        });
+        var table = $('#search-results-body');
+        table.empty();
+        allBillsData.forEach(function (row) {
+            var tr = $('<tr>');
+            tr.append($('<td>').text(row['Bill #']));
+            tr.append($('<td>').text(row['St']));
+            tr.append($('<td>').text(row['Short Subject']));
+            tr.click(function () {
+                populateSelectedBillCard(row);
+            });
+            table.append(tr);
+        });
+    });
+}
+
+loadAllBillsData();
