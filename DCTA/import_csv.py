@@ -1,5 +1,5 @@
 import pandas as pd
-from models import Bill
+from .models import Bill, Analysis, Event
 from sqlalchemy import create_engine
 
 def import_csv_to_db(db, file_path):

@@ -46,7 +46,7 @@ def analyze_bill(latest_bill_text, bill_number, bill_state, bill_session):
     print(crypto_impact)
     print(dcta_analysis)
 
-    with open('analysis_output.csv', mode='a', newline='') as csv_file:
+    with open('../analysis_output.csv', mode='a', newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
         # Check if the file is empty and add headers
         if csv_file.tell() == 0:

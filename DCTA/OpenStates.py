@@ -84,7 +84,7 @@ def scrape_bills(query):
     return bill_data
 
 def export_bills_to_csv(bill_data):
-    with open('blockchain_cryptocurrency_bills.csv', mode='w', newline='') as file:
+    with open('../blockchain_cryptocurrency_bills.csv', mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(['Bill #', 'State', 'Session', 'Subject', 'Introduced', 'Latest Action', 'Latest Action Date', 'Link', 'Primary Sponsor', 'Cosponsors', 'Latest Bill Text'])
 

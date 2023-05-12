@@ -11,8 +11,8 @@ def detect_encoding(file_path):
     return result['encoding']
 
 # Load the data from the CSV file
-input_file = 'blockchain_cryptocurrency_bills.csv'
-output_file = 'output.csv'
+input_file = '../blockchain_cryptocurrency_bills.csv'
+output_file = '../output.csv'
 
 encoding = detect_encoding(input_file)
 
