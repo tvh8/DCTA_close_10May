@@ -4,10 +4,28 @@ import subprocess
 import os
 import pandas as pd
 from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
+from .database import db
+from .models import Bill, Analysis, Event
+from .import_csv import import_csv_to_db, import_analysis_csv_to_db, import_events_csv_to_db
 
-app = Flask(__name__)
 
+
+def create_app():
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'  # SQLite database file location
+
+    db.init_app(app)
+
+    with app.app_context():
+        db.create_all()
+        import_csv_to_db(db, 'output.csv')
+        import_analysis_csv_to_db(db, 'analysis_output.csv')
+        import_events_csv_to_db(db, 'events.csv')
+
+    return app
+
+app = create_app()
 
 @app.route('/')
 def index():
@@ -15,30 +33,36 @@ def index():
 
 @app.route('/get_bills', methods=['GET'])
 def get_bills():
-    csv_file = 'output.csv'
-    with open('output.csv', mode='r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        bills = [row for row in reader]
+    # Query all bills from the database
+    bills = Bill.query.all()
 
-    json_data = json.dumps(bills)
-    last_modified = datetime.fromtimestamp(os.path.getmtime(csv_file)).strftime('%m/%d/%Y %H:%M')
-    print(json_data)
-    return json_data, 200, {'Content-Type': 'application/json', 'Last-Modified': last_modified}
+    # Convert the QuerySet to JSON
+    bills_list = [{'bill_number': b.bill_number, 'bill_id': b.bill_id, 'state': b.state, 'st': b.st, 'session': b.session, 'introduced': b.introduced, 'latest_action': b.latest_action, 'latest_action_date': b.latest_action_date, 'primary_sponsor': b.primary_sponsor, 'subjects': b.subjects, 'title': b.title, 'type': b.type, 'url': b.url, 'bill_status': b.bill_status, 'bill_text_url': b.bill_text_url, 'timestamp': b.timestamp} for b in bills]
+
+    return jsonify(bills_list), 200
 
 @app.route('/get_events', methods=['GET'])
 def get_events():
-    df = pd.read_csv('events.csv')
-    return jsonify(df.to_dict('records'))
+    # Query all events from the database
+    events = Event.query.all()
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    # Convert the QuerySet to JSON
+    events_list = [{'bill_number': e.bill_number, 'st': e.st, 'event_date': e.event_date, 'action': e.action} for e in events]
+
+    return jsonify(events_list), 200
+
 @app.route('/get_analysis/<bill_number>', methods=['GET'])
 def get_analysis(bill_number):
-    df = pd.read_csv('analysis_output.csv')
-    if df.empty or bill_number not in df['Bill Number'].values:
+    # Query for the analysis with the specified bill number
+    analysis = Analysis.query.filter_by(bill_number=bill_number).first()
+
+    if analysis is None:
         return jsonify({"error": "Bill analysis not found"}), 404
-    bill_analysis = df[df['Bill Number'] == bill_number].iloc[0].to_dict()
-    return jsonify(bill_analysis), 200
+
+    # Convert the Analysis object to a dictionary
+    analysis_dict = {'bill_number': analysis.bill_number, 'summary': analysis.summary, 'crypto_impact': analysis.crypto_impact, 'dcta_analysis': analysis.dcta_analysis, 'timestamp': analysis.timestamp}
+
+    return jsonify(analysis_dict), 200
 
 
 @app.route('/analyze', methods=['GET'])
