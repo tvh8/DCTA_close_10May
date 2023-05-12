@@ -24,22 +24,19 @@ body {
 .left-col {
     top: 0;
     left: 0;
-    width: 30%;
     height: 100%;
 }
 .left-col .table {
-  width: 500px;
+  width: 100%;
 }
 
 .middle-col {
     top: 0;
-    width: 40%;
     height: 100%;
 }
 
 .right-col {
     top: 0;
-    width: 30%;
     height: 100%;
 }
 
@@ -50,6 +47,11 @@ body {
     height: 100%;
     padding: 0;
     overflow-y: auto;
+}
+
+.letterCol{
+    width: 50%;
+    height: 100%;
 }
 
 .search-results-table{
@@ -175,6 +177,13 @@ table tbody {
     overflow-y: auto;
 }
 
+#selectedBillSubjectDiv {
+  max-height: 40px; /* Set the maximum height */
+  overflow-y: auto; /* Add vertical scrollbar when necessary */
+  padding: ;
+}
+
+
 .cosponsors-container {
     max-height: 200px;
     overflow-y: auto;
@@ -189,10 +198,24 @@ table tbody {
   cursor: pointer;
 }
 
+#dropdown {
+  color: white;
+}
+
+.black-font {
+    color: black;
+}
+
 .scrollable-list {
     height: 150px; /* Adjust this value as needed */
     overflow-y: scroll;
 }
+
+#calendar {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
 
 .search-results {
   height: calc(100vh - 250px); /* Adjust the value based on your header height */

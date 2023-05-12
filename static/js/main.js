@@ -1,3 +1,4 @@
+var fullData = []
 function loadRecentData() {
     $.get('/get_bills', function (data) {
         var recentData = data;
@@ -14,6 +15,10 @@ function loadRecentData() {
             tr.append($('<td>').text(row['Short Subject']));
             tr.append($('<td>').text(row['Introduced']));
             tr.click(function () {
+                // Unhighlight all other rows
+                $('tr').css('background-color', '');
+                // Highlight the clicked row
+                $(this).css('background-color', 'yellow');
                 populateSelectedBillCard(row);
             });
             table.append(tr);
@@ -37,6 +42,10 @@ function loadRecentActionsData() {
             tr.append($('<td>').text(row['Short Subject']));
             tr.append($('<td>').text(row['Latest Action Date']));
             tr.click(function () {
+                // Unhighlight all other rows
+                $('tr').css('background-color', '');
+                // Highlight the clicked row
+                $(this).css('background-color', 'yellow');
                 populateSelectedBillCard(row);
             });
             table.append(tr);
@@ -44,83 +53,34 @@ function loadRecentActionsData() {
     });
 }
 
-function loadSearchTableData() {
+function loadAllData() {
     $.get('/get_bills', function (data) {
-        var searchData = data;
-        searchData.sort(function (a, b) {
+        fullData = data;
+        fullData.sort(function (a, b) {
             return a['St'].localeCompare(b['St']);
         });
-
-        var table = $('#search-table-body');
-        table.empty();
-        searchData.forEach(function (row) {
-            var tr = $('<tr>');
-            tr.append($('<td>').text(row['Bill #']));
-            tr.append($('<td>').text(row['St']));
-            tr.append($('<td>').text(row['Short Subject']));
-            // Add more columns as needed
-            tr.click(function () {
-                populateSelectedBillCard(row);
-            });
-            table.append(tr);
-        });
+        populateTable(fullData);
     });
 }
-
 function populateSelectedBillCard(bill) {
-    $('#selectedBillNumber').text(bill['Bill #']);
-    $('#selectedBillState').text(bill['State']);
-    $('#selectedBillSession').text(bill['Session']);
-    $('#selectedBillIntroduced').text(bill['Introduced']);
-    $('#selectedBillLatestAction').text(bill['Latest Action']);
-    $('#selectedBillLatestActionDate').text(bill['Latest Action Date']);
-    $('#selectedBillPrimarySponsor').text(bill['Primary Sponsor']);
-    $('#selectedBillSubject').text(bill['Subject']);
-    $('#latestBillBtn').data('latestBillTextUrl', bill['Latest Bill Text']);
-    $('#openStatesBtn').data('openStatesUrl', bill['Link']);
-    updateSummaryContent(bill['Bill #']);
-}
+    console.log(bill);
+    // Set the new data
+    $('#selectedBillNumber').text(bill['Bill #'] || '');
+    $('#selectedBillState').text(bill['State'] || '');
+    $('#selectedBillSession').text(bill['Session'] || '');
+    $('#selectedBillIntroduced').text(bill['Introduced'] || '');
+    $('#selectedBillLatestAction').text(bill['Latest Action'] || '');
+    $('#selectedBillLatestActionDate').text(bill['Latest Action Date'] || '');
+    $('#selectedBillPrimarySponsor').text(bill['Primary Sponsor'] || '');
+    $('#selectedBillSubject').text(bill['Subject'] || '');
+    $('#selectedBillSummary').text(bill['Summary'] || '');
+    $('#selectedBillCryptoImpact').text(bill['Crypto Impact'] || '');
+    $('#selectedBillDCTAAnalysis').text(bill['DCTA Analysis'] || '');
+    $('#selectedBilltimestamp').text(bill['timestamp'] || '');
+    $('#latestBillBtn').data('latestBillTextUrl', bill['Latest Bill Text'] || '');
+    $('#openStatesBtn').data('openStatesUrl', bill['Link'] || '');
 
-function updateSummaryContent(billNumber) {
-  $.get(`/get_summary_data?bill_number=${billNumber}`, function (data) {
-    const summaryElement = document.getElementById("summary");
-    const cryptoImpactElement = document.getElementById("crypto-impact");
-    const dctaAnalysisElement = document.getElementById("dcta-analysis");
-
-    const summaryLastUpdated = summaryElement.querySelector("h6");
-    const cryptoImpactLastUpdated = cryptoImpactElement.querySelector("h6");
-    const dctaAnalysisLastUpdated = dctaAnalysisElement.querySelector("h6");
-
-    const summaryContent = summaryElement.querySelector("p");
-    const cryptoImpactContent = cryptoImpactElement.querySelector("p");
-    const dctaAnalysisContent = dctaAnalysisElement.querySelector("p");
-
-    if (data) {
-      summaryLastUpdated.innerHTML = `Last Updated: ${data.timestamp}`;
-      cryptoImpactLastUpdated.innerHTML = `Last Updated: ${data.timestamp}`;
-      dctaAnalysisLastUpdated.innerHTML = `Last Updated: ${data.timestamp}`;
-
-      summaryContent.innerHTML = data.summary;
-      cryptoImpactContent.innerHTML = data.crypto_impact;
-      dctaAnalysisContent.innerHTML = data.dcta_analysis;
-    } else {
-      summaryLastUpdated.innerHTML = "Last Updated:";
-      cryptoImpactLastUpdated.innerHTML = "Last Updated:";
-      dctaAnalysisLastUpdated.innerHTML = "Last Updated:";
-
-      summaryContent.innerHTML = "No summary data available for the selected bill.";
-      cryptoImpactContent.innerHTML = "No crypto impact data available for the selected bill.";
-      dctaAnalysisContent.innerHTML = "No DCTA analysis data available for the selected bill.";
-    }
-  });
-}
-
-function analyzeAndUpdateContent(billNumber) {
-  // Simulate the analysis process
-  setTimeout(() => {
-    // After the analysis is done, update the content
-    updateSummaryContent(billNumber);
-  }, 1000); // Adjust this value to simulate the time it takes for the analysis process
+    populateSelectedBillAnalysis(bill['Bill #'] || '');
 }
 
 function previewBill(billId) {
@@ -140,10 +100,6 @@ function previewBill(billId) {
 }
 
 $(document).ready(function () {
-    $("#analyzeBtn").on("click", function () {
-    const billNumber = $("#selectedBillNumber").text();
-    analyzeAndUpdateContent(billNumber);
-  });
     $("table tbody tr").on("click", function () {
         // Remove 'highlighted' class from all rows
         $("table tbody tr").removeClass("highlighted");
@@ -161,11 +117,13 @@ $(document).ready(function () {
     });
     loadRecentData();
     loadRecentActionsData();
-    loadSearchTableData();
-    $('#latestBillBtn').click(function () {
-        const latestBillTextUrl = $(this).data('latestBillTextUrl');
-        if (latestBillTextUrl) {
-            window.open(latestBillTextUrl, '_blank');
+    loadAllData()
+    $('#latestBillBtn').click(function() {
+        var url = $(this).data('latestBillTextUrl');
+        if(url && url !== '') {
+            window.open(url, '_blank');
+        } else {
+            console.log("No URL found for Latest Bill Text");
         }
     });
 
@@ -177,68 +135,145 @@ $(document).ready(function () {
     });
 
     $('#analyzeBtn').click(function () {
-    const billNumber = $('#selectedBillNumber').text();
-    const billState = $('#selectedBillState').text();
-    const billSession = $('#selectedBillSession').text();
+        // Get the actual values from the selected bill
+        var latest_bill_text = $('#latestBillBtn').data('latestBillTextUrl');
+        var bill_number = $('#selectedBillNumber').text();
+        var bill_state = $('#selectedBillState').text();
+        var bill_session = $('#selectedBillSession').text();
 
-    // Show the spinner
-    $('#analyzeSpinner').css('display', 'inline-block');
-    console.log('Spinner should be visible now.');
+        // Call the backend route to execute the OpenAI_analysis.py script
+        $.get('/analyze', {
+            latest_bill_text: latest_bill_text,
+            bill_number: bill_number,
+            bill_state: bill_state,
+            bill_session: bill_session
+        }, function (data) {
+            // Update the displayed data with the new analysis results
+            $('#selectedBillSummary').text(data['Summary']);
+            $('#selectedBillCryptoImpact').text(data['Crypto Impact']);
+            $('#selectedBillDCTAAnalysis').text(data['DCTA Analysis']);
+            $('#selectedBilltimestamp').text(data['timestamp']);
 
-    // Call the backend route to execute the OpenAI_analysis.py script
-    $.get('/analyze', { bill_number: billNumber, bill_state: billState, bill_session: billSession }, function (data, textStatus, jqXHR) {
-        // Process the response data as needed
-        console.log(data);
-        if (jqXHR.status === 408) {
-            alert("The analysis process took too long and has timed out. Please try again later.");
+            // Set a timeout to refresh the page 10 seconds after the data is received
+            setTimeout(function () {
+                location.reload();
+            }, 10000);  // 10000 milliseconds = 10 second
+        });
+    });
+
+    $('#createLetterbtn').click(function () {
+        const billId = $('#selectedBillNumber').text();  // Get the selected bill number
+        $.get('/create_letter/' + billId, function (data) {
+            console.log(data);
+        });
+    });
+
+    // Trigger the default tab to open after everything else has been initialized
+    $('#defaultOpen').click();
+
+    $('#search-button').click(function() {
+        const searchTerm = $('#search-input').val();
+        if(searchTerm) {
+            const filteredData = filterData(searchTerm, fullData);
+            populateTable(filteredData);
         } else {
-            setTimeout(function() {
-                updateSummaryContent(billNumber);
-            }, 1000);
+            populateTable(fullData);
         }
     });
+
+
 });
 
-    loadRecentData();
-});:ion
+function populateSelectedBillAnalysis(billNumber) {
+    // Clear the old data
+    $('#selectedBillSummary').text('');
+    $('#selectedBillCryptoImpact').text('');
+    $('#selectedBillDCTAAnalysis').text('');
+    $('#selectedBilltimestamp').text('');
 
-function openTab(evt, tabName) {
-  var i, tabcontent, tablinks;
-  tabcontent = document.getElementsByClassName("tabcontent");
-  for (i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = "none";
-  }
-  tablinks = document.getElementsByClassName("tablinks");
-  for (i = 0; i < tablinks.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(" active", "");
-  }
-  document.getElementById(tabName).style.display = "block";
-  evt.currentTarget.className += " active";
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById("defaultOpen").click();
-});
-
-function loadAllBillsData() {
-    $.get('/get_bills', function (data) {
-        var allBillsData = data;
-        allBillsData.sort(function (a, b) {
-            return a['St'].localeCompare(b['St']);
-        });
-        var table = $('#search-results-body');
-        table.empty();
-        allBillsData.forEach(function (row) {
-            var tr = $('<tr>');
-            tr.append($('<td>').text(row['Bill #']));
-            tr.append($('<td>').text(row['St']));
-            tr.append($('<td>').text(row['Short Subject']));
-            tr.click(function () {
-                populateSelectedBillCard(row);
-            });
-            table.append(tr);
-        });
+    $.get('/get_analysis/' + billNumber, function (data) {
+        if (data) {
+            // Set the new data
+            $('#selectedBillSummary').text(data['Summary'] || '');
+            $('#selectedBillCryptoImpact').text(data['Crypto Impact'] || '');
+            $('#selectedBillDCTAAnalysis').text(data['DCTA Analysis'] || '');
+            $('#selectedBilltimestamp').text(data['timestamp'] || '');
+        }
+        console.log(data)
     });
 }
 
-loadAllBillsData();
+function openTab(evt, tabName) {
+    console.log(evt);
+    console.log(evt.currentTarget);
+    // Hide all tabcontent elements
+    var tabcontent = document.getElementsByClassName("tabcontent");
+    for (var i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+
+    // Remove the active class from all tablinks/buttons
+    var tablinks = document.getElementsByClassName("tablinks");
+    for (var i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    // Show the specific tab content and add an "active" class to the button that opened the tab
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+
+function filterData(searchTerm, data) {
+    return data.filter(function(row) {
+        return Object.values(row).some(val => String(val).toLowerCase().includes(searchTerm.toLowerCase()));
+    });
+}
+
+function changeColor() {
+  var dropdown = document.getElementById('dropdown');
+  var selectedValue = dropdown.options[dropdown.selectedIndex].value;
+
+  if (selectedValue === 'support') {
+    dropdown.style.backgroundColor = 'green';
+  } else if (selectedValue === 'oppose') {
+    dropdown.style.backgroundColor = 'red';
+  } else if (selectedValue === 'watch') {
+    dropdown.style.backgroundColor = 'grey';
+  } else {
+    dropdown.style.backgroundColor = 'white';
+  }
+}
+
+function populateTable(data) {
+    var table = $('#search-results-table tbody');
+    table.empty();
+    data.forEach(function (row) {
+        var tr = $('<tr>');
+        tr.append($('<td>').text(row['Bill #']));
+        tr.append($('<td>').text(row['St']));
+        tr.append($('<td>').text(row['Subject']));
+        tr.click(function () {
+            // Unhighlight all other rows
+            $('tr').css('background-color', '');
+            // Highlight the clicked row
+            $(this).css('background-color', 'yellow');
+            populateSelectedBillCard(row);
+        });
+        table.append(tr);
+    });
+}
+//Line placed at end of script//
+window.onload = function() {
+    document.getElementById("defaultOpen").click();
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  var calendarEl = document.getElementById('calendar');
+
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    events: '/get_events',
+    // Other FullCalendar options...
+  });
+
+  calendar.render();
+});
