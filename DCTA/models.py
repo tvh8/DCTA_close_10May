@@ -1,4 +1,4 @@
-from .database import db
+from database import db
 from sqlalchemy.dialects.sqlite import DATETIME
 
 class Bill(db.Model):

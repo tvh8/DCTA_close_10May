@@ -1,10 +1,10 @@
 import pandas as pd
-from .models import Bill, Analysis, Event
+from models import Bill, Analysis, Event
 from sqlalchemy import create_engine
 
 def import_csv_to_db(db, file_path):
     df = pd.read_csv(file_path)
-    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+    engine = create_engine('sqlite:///test.db')
     df.to_sql(Bill.__tablename__, con=engine, if_exists='replace', index=False)
 
     for _, row in df.iterrows():
@@ -30,7 +30,7 @@ def import_csv_to_db(db, file_path):
 
 def import_analysis_csv_to_db(db, file_path):
     df = pd.read_csv(file_path)
-    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+    engine = create_engine('sqlite:///test.db')
     df.to_sql(Analysis.__tablename__, con=engine, if_exists='replace', index=False)
 
     for _, row in df.iterrows():
@@ -49,7 +49,7 @@ def import_analysis_csv_to_db(db, file_path):
 
 def import_events_csv_to_db(db, file_path):
     df = pd.read_csv(file_path)
-    engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+    engine = create_engine('sqlite:///test.db')
     df.to_sql(Event.__tablename__, con=engine, if_exists='replace', index=False)
 
     for _, row in df.iterrows():
