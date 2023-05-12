@@ -5,8 +5,8 @@ import os
 import pandas as pd
 from datetime import datetime
 from sqlalchemy import create_engine
-from database import db
-from models import Bill, Analysis, Event
+from DCTA.database import db
+from DCTA.models import Bill, Analysis, Event
 from flask_sqlalchemy import SQLAlchemy
 
 def create_app():
