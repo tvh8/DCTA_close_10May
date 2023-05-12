@@ -14,14 +14,10 @@ from .import_csv import import_csv_to_db, import_analysis_csv_to_db, import_even
 def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'  # SQLite database file location
-
     db.init_app(app)
 
     with app.app_context():
         db.create_all()
-        import_csv_to_db(db, 'output.csv')
-        import_analysis_csv_to_db(db, 'analysis_output.csv')
-        import_events_csv_to_db(db, 'events.csv')
 
     return app
 
