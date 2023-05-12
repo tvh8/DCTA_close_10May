@@ -5,11 +5,11 @@ import os
 import pandas as pd
 from datetime import datetime
 from sqlalchemy import create_engine
-from .database import db
+from database import db
 from .models import Bill, Analysis, Event
-from .import_csv import import_csv_to_db, import_analysis_csv_to_db, import_events_csv_to_db
+from flask_sqlalchemy import SQLAlchemy
 
-
+db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
@@ -20,8 +20,6 @@ def create_app():
         db.create_all()
 
     return app
-
-app = create_app()
 
 @app.route('/')
 def index():

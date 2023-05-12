@@ -1,5 +1,4 @@
 import pandas as pd
-from app import db
 from models import Bill
 from sqlalchemy import create_engine
 
