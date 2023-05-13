@@ -5,17 +5,29 @@ import os
 import pandas as pd
 from datetime import datetime
 from sqlalchemy import create_engine
-from DCTA.database import db
+from DCTA.database import db as _db  # use an alias to avoid conflict
 from DCTA.models import Bill, Analysis, Event
 from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
-def create_app():
-    app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'  # SQLite database file location
-    db.init_app(app)
+db = SQLAlchemy()
+migrate = Migrate()
 
-    with app.app_context():
-        db.create_all()
+def create_app(test_config=None):
+    # Create and configure the app
+    app = Flask(__name__, instance_relative_config=True)
+    app.config.from_mapping(
+        SECRET_KEY='dev',
+        DATABASE=os.path.join(app.instance_path, 'DCTA.sqlite'),
+    )
+
+    # Additional configuration for SQLAlchemy
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'  # Use SQLite database
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    db.init_app(app)  # Initialize SQLAlchemy with this app
+    migrate.init_app(app, db)  # And this for Flask-Migrate
 
     @app.route('/')
     def index():
@@ -96,4 +108,5 @@ def create_app():
     return app
 
 if __name__ == '__main__':
+    app = create_app()
     app.run(debug=True)
