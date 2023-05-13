@@ -1,104 +1,32 @@
 var fullData = []
-function loadRecentData() {
-    $.get('/get_bills', function (data) {
-        var recentData = data;
-        recentData.sort(function (a, b) {
-            return new Date(b['Introduced']) - new Date(a['Introduced']);
-        });
-        recentData = recentData.slice(0, 100);
-        var table = $('#recently-introduced-table-body');
-        table.empty();
-        recentData.forEach(function (row) {
-            var tr = $('<tr>');
-            tr.append($('<td>').text(row['Bill #']));
-            tr.append($('<td>').text(row['St']));
-            tr.append($('<td>').text(row['Short Subject']));
-            tr.append($('<td>').text(row['Introduced']));
-            tr.click(function () {
-                // Unhighlight all other rows
-                $('tr').css('background-color', '');
-                // Highlight the clicked row
-                $(this).css('background-color', 'yellow');
-                populateSelectedBillCard(row);
-            });
-            table.append(tr);
-        });
-    });
-}
-
-function loadRecentActionsData() {
-    $.get('/get_bills', function (data) {
-        var recentData = data;
-        recentData.sort(function (a, b) {
-            return new Date(b['Latest Action Date']) - new Date(a['Latest Action Date']);
-        });
-        recentData = recentData.slice(0, 100);
-        var table = $('#recent-actions-table-body');
-        table.empty();
-        recentData.forEach(function (row) {
-            var tr = $('<tr>');
-            tr.append($('<td>').text(row['Bill #']));
-            tr.append($('<td>').text(row['St']));
-            tr.append($('<td>').text(row['Short Subject']));
-            tr.append($('<td>').text(row['Latest Action Date']));
-            tr.click(function () {
-                // Unhighlight all other rows
-                $('tr').css('background-color', '');
-                // Highlight the clicked row
-                $(this).css('background-color', 'yellow');
-                populateSelectedBillCard(row);
-            });
-            table.append(tr);
-        });
-    });
-}
+var dateField = 'event_date';
 
 function loadAllData() {
     $.get('/get_bills', function (data) {
-        fullData = data;
-        fullData.sort(function (a, b) {
-            return a['St'].localeCompare(b['St']);
+        fullData = data.filter(function (item) {
+            return item['St'] !== 'DE' && item['St'] !== 'DC' && item['St'] !== 'RMI';
         });
-        populateTable(fullData);
-    });
-}
-function populateSelectedBillCard(bill) {
-    console.log(bill);
-    // Set the new data
-    $('#selectedBillNumber').text(bill['Bill #'] || '');
-    $('#selectedBillState').text(bill['State'] || '');
-    $('#selectedBillSession').text(bill['Session'] || '');
-    $('#selectedBillIntroduced').text(bill['Introduced'] || '');
-    $('#selectedBillLatestAction').text(bill['Latest Action'] || '');
-    $('#selectedBillLatestActionDate').text(bill['Latest Action Date'] || '');
-    $('#selectedBillPrimarySponsor').text(bill['Primary Sponsor'] || '');
-    $('#selectedBillSubject').text(bill['Subject'] || '');
-    $('#selectedBillSummary').text(bill['Summary'] || '');
-    $('#selectedBillCryptoImpact').text(bill['Crypto Impact'] || '');
-    $('#selectedBillDCTAAnalysis').text(bill['DCTA Analysis'] || '');
-    $('#selectedBilltimestamp').text(bill['timestamp'] || '');
-    $('#latestBillBtn').data('latestBillTextUrl', bill['Latest Bill Text'] || '');
-    $('#openStatesBtn').data('openStatesUrl', bill['Link'] || '');
-
-    populateSelectedBillAnalysis(bill['Bill #'] || '');
-}
-
-function previewBill(billId) {
-    $.get('/preview/' + billId, function (data) {
-        var bill = data[0];
-        var previewContainer = $('.preview-container');
-        previewContainer.empty();
-        // Add the bill's details to the preview container
-        previewContainer.append($('<h4>').text('Bill #' + bill['Bill #']));
-        previewContainer.append($('<p>').text('State: ' + bill['State']));
-        previewContainer.append($('<p>').text('Subject: ' + bill['Subject']));
-        previewContainer.append($('<p>').text('Introduced: ' + bill['Introduced']));
-        previewContainer.append($('<p>').text('Latest Action: ' + bill['Latest Action']));
-        previewContainer.append($('<p>').text('Position: ' + bill['Position']));
-        previewContainer.append($('<p>').text('Primary Sponsor: ' + bill['Primary Sponsor']));
+        console.log('fullData:', fullData);
+        loadRecentData(fullData, $('#recently-introduced-table-body'), 'Introduced');
+        loadRecentActionsData(fullData, $('#recent-actions-table-body'), 'Latest Action Date');
+        populateTable(fullData, $('#search-results-table tbody'), 'Subject');
     });
 }
 
+function loadRecentData(data, tableBody, key) {
+    console.log('loadRecentData - data:', data);
+    var recentData = [...data]; // create a copy of data
+    recentData.sort(function (a, b) {
+        return new Date(b[dateField]) - new Date(a[dateField]);
+    });
+    recentData = recentData.slice(0, 100);
+    populateTable(recentData, tableBody, dateField);
+}
+
+function loadRecentActionsData(data, tableBody, key) {
+    console.log('loadRecentActionsData - data:', data);
+    loadRecentData(data, tableBody, dateField);
+}
 $(document).ready(function () {
     $("table tbody tr").on("click", function () {
         // Remove 'highlighted' class from all rows
@@ -115,9 +43,9 @@ $(document).ready(function () {
         $("table.recent-actions tbody tr").eq(rowIndex).addClass("highlighted");
         $("table.search-results tbody tr").eq(rowIndex).addClass("highlighted");
     });
-    loadRecentData();
+
     loadRecentActionsData();
-    loadAllData()
+
     $('#latestBillBtn').click(function() {
         var url = $(this).data('latestBillTextUrl');
         if(url && url !== '') {
@@ -183,6 +111,61 @@ $(document).ready(function () {
 
 
 });
+
+function populateTable(data, tableElement, dateField) {
+    tableElement.empty();
+    data.forEach(function (row) {
+        var tr = $('<tr>');
+        tr.append($('<td>').text(row['Bill #']));
+        tr.append($('<td>').text(row['St']));
+        tr.append($('<td>').text(row['Short Subject']));
+        tr.append($('<td>').text(row[dateField]));
+        tr.click(function () {
+            // Unhighlight all other rows
+            $('tr').css('background-color', '');
+            // Highlight the clicked row
+            $(this).css('background-color', 'yellow');
+            populateSelectedBillCard(row);
+        });
+        tableElement.append(tr);
+    });
+}
+function populateSelectedBillCard(bill) {
+    console.log(bill);
+    // Set the new data
+    $('#selectedBillNumber').text(bill['Bill #'] || '');
+    $('#selectedBillState').text(bill['State'] || '');
+    $('#selectedBillSession').text(bill['Session'] || '');
+    $('#selectedBillIntroduced').text(bill['Introduced'] || '');
+    $('#selectedBillLatestAction').text(bill['Latest Action'] || '');
+    $('#selectedBillLatestActionDate').text(bill['Latest Action Date'] || '');
+    $('#selectedBillPrimarySponsor').text(bill['Primary Sponsor'] || '');
+    $('#selectedBillSubject').text(bill['Subject'] || '');
+    $('#selectedBillSummary').text(bill['Summary'] || '');
+    $('#selectedBillCryptoImpact').text(bill['Crypto Impact'] || '');
+    $('#selectedBillDCTAAnalysis').text(bill['DCTA Analysis'] || '');
+    $('#selectedBilltimestamp').text(bill['timestamp'] || '');
+    $('#latestBillBtn').data('latestBillTextUrl', bill['Latest Bill Text'] || '');
+    $('#openStatesBtn').data('openStatesUrl', bill['Link'] || '');
+
+    populateSelectedBillAnalysis(bill['Bill #'] || '');
+}
+
+function previewBill(billId) {
+    $.get('/preview/' + billId, function (data) {
+        var bill = data[0];
+        var previewContainer = $('.preview-container');
+        previewContainer.empty();
+        // Add the bill's details to the preview container
+        previewContainer.append($('<h4>').text('Bill #' + bill['Bill #']));
+        previewContainer.append($('<p>').text('State: ' + bill['State']));
+        previewContainer.append($('<p>').text('Subject: ' + bill['Subject']));
+        previewContainer.append($('<p>').text('Introduced: ' + bill['Introduced']));
+        previewContainer.append($('<p>').text('Latest Action: ' + bill['Latest Action']));
+        previewContainer.append($('<p>').text('Position: ' + bill['Position']));
+        previewContainer.append($('<p>').text('Primary Sponsor: ' + bill['Primary Sponsor']));
+    });
+}
 
 function populateSelectedBillAnalysis(billNumber) {
     // Clear the old data

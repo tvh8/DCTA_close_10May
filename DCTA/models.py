@@ -1,6 +1,5 @@
 from DCTA.database import db
 from sqlalchemy.dialects.sqlite import DATETIME
-
 class Bill(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     bill_number = db.Column(db.String(50), unique=True, nullable=False)
@@ -16,7 +15,6 @@ class Bill(db.Model):
     short_subject = db.Column(db.String(30))
     open_states_url = db.Column(db.String(200))
     latest_bill_text_url = db.Column(db.String(200))
-
 class Analysis(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     bill_number = db.Column(db.String(120), unique=True, nullable=False)
@@ -24,7 +22,6 @@ class Analysis(db.Model):
     crypto_impact = db.Column(db.Text, nullable=True)
     dcta_analysis = db.Column(db.Text, nullable=True)
     timestamp = db.Column(DATETIME, nullable=True)
-
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     bill_number = db.Column(db.String(50), unique=True, nullable=False)
