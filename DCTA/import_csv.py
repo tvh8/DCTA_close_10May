@@ -1,3 +1,6 @@
+import sys
+print(sys.path)
+
 import pandas as pd
 from DCTA.models import Bill, Analysis, Event
 from sqlalchemy import create_engine
