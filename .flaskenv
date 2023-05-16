@@ -1,2 +1,2 @@
-FLASK_APP=DCTA
+FLASK_APP=DCTA.app
 FLASK_ENV=development

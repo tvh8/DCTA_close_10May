@@ -1,6 +1,7 @@
-from app import create_app, db
-from models import Bill, Analysis, Event
-from import_csv import import_csv_to_db, import_analysis_csv_to_db, import_events_csv_to_db
+from DCTA.app import create_app
+from DCTA.database import db
+from DCTA.models import Bill, Analysis, Event
+from DCTA.import_csv import import_csv_to_db, import_analysis_csv_to_db, import_events_csv_to_db
 
 app = create_app()
 

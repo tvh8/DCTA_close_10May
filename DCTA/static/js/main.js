@@ -17,7 +17,7 @@ function loadRecentData(data, tableBody, key) {
     console.log('loadRecentData - data:', data);
     var recentData = [...data]; // create a copy of data
     recentData.sort(function (a, b) {
-        return new Date(b[dateField]) - new Date(a[dateField]);
+        return new Date(b[key]) - new Date(a[key]);
     });
     recentData = recentData.slice(0, 100);
     populateTable(recentData, tableBody, dateField);
@@ -28,6 +28,7 @@ function loadRecentActionsData(data, tableBody, key) {
     loadRecentData(data, tableBody, dateField);
 }
 $(document).ready(function () {
+    loadAllData()
     $("table tbody tr").on("click", function () {
         // Remove 'highlighted' class from all rows
         $("table tbody tr").removeClass("highlighted");
@@ -227,7 +228,7 @@ function changeColor() {
   }
 }
 
-function populateTable(data) {
+function populateSearchTable(data) {
     var table = $('#search-results-table tbody');
     table.empty();
     data.forEach(function (row) {

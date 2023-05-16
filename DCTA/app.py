@@ -8,10 +8,8 @@ from sqlalchemy import create_engine
 from DCTA.database import db as _db  # use an alias to avoid conflict
 from DCTA.models import Bill, Analysis, Event
 from flask_sqlalchemy import SQLAlchemy
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
-db = SQLAlchemy()
 migrate = Migrate()
 
 def create_app(test_config=None):
@@ -23,11 +21,12 @@ def create_app(test_config=None):
     )
 
     # Additional configuration for SQLAlchemy
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'  # Use SQLite database
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    db_path = os.path.join(basedir, 'site.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 
-    db.init_app(app)  # Initialize SQLAlchemy with this app
-    migrate.init_app(app, db)  # And this for Flask-Migrate
+    _db.init_app(app)  # Initialize SQLAlchemy with this app
+    migrate.init_app(app, _db)  # And this for Flask-Migrate
 
     @app.route('/')
     def index():
