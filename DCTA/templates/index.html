@@ -115,21 +115,25 @@
                 <button class="tablinks" onclick="openTab(event, 'crypto-impact')">Crypto Impact</button>
                 <button class="tablinks" onclick="openTab(event, 'dcta-analysis')">DCTA Analysis</button>
                 <button class="tablinks" onclick="openTab(event, 'letter')">Letter</button>
+                <button class="tablinks" onclick="openTab(event, 'notes')">Notes</button>
               </div>
               <div id="summary" class="tabcontent">
                 <h3>Summary <button id="analyzeBtn" class="btn btn-primary">Analyze</button> </h3>
-                <h6>Last Updated: <p id= "selectedBilltimestamp"> </h6>
                 <div class="card">
                   <div class="card-body" is="dmx-repeat" id="repeat2">
                     <h4 class="card-title" id="selectedBilltimestamp">Card title</h4>
                       <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
                   </div>
                 </div>
-                <p id="selectedBillSummary">Content for the Summary tab goes here.</p>
               </div>
               <div id="crypto-impact" class="tabcontent">
                 <h3>Crypto Impact</h3>
-                <p id="selectedBillCryptoImpact">Content for the Crypto Impact tab goes here.</p>
+                <div class="card">
+                  <div class="card-body" is="dmx-repeat" id="repeat2">
+                    <h4 class="card-title" id="selectedBilltimestamp">Date</h4>
+                      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                  </div>
+                </div>
               </div>
               <div id="dcta-analysis" class="tabcontent">
                 <h3>DCTA Analysis</h3>
@@ -137,28 +141,48 @@
                   <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Select an option
                   </button>
-                  <select id="dropdown" onchange="changeColor()">
-                    <option value="none" class="black-font" selected disabled hidden>Select an option</option>
-                    <option value="support" class="black-font">Support</option>
-                    <option value="oppose">Oppose</option>
-                    <option value="watch">Watch</option>
-                  </select>
+                  <div class="card">
+                    <div class="card-body" is="dmx-repeat" id="repeat2">
+                      <h4 class="card-title" id="selectedBilltimestamp">Date</h4>
+                        <p class="card-text" id="selectedBillDCTAAnalysis" >Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    </div>
+                  </div>
                 </div>
-                <p id="selectedBillDCTAAnalysis">Content for the DCTA Analysis tab goes here.</p>
               </div>
               <div id="letter" class="tabcontent">
-                <h3>Letter <button id="createLetterbtn" class="btn btn-primary">Create Letter</button>
-                </h3>
-                <div class="letterCol"
-                     <p>list of letters</p>
+                <div class="row">
+                     <div class="col-12"
+                        <h3>Letter <button id="createLetterbtn" class="btn btn-primary">Create Letter</button>
+                        </h3>
+                  </div>
+                <div class="row">
+                   <div class="col-6">
+                      <p>list of letters</p>
+                   </div>
+                   <div class="col-6">
+                     <p>Letter Preview</p>
+                   </div>
                 </div>
-                <div class="letterCol"
-                     <p>Preview</p>
+            </div>
+              <div id="notes" class="tabcontent">
+                <div class="row">
+                     <div class="col-8">
+                       <h3>Notes</h3>
+                       <p>Enter notes or any upcoming status.....</p>
+                       <input id="text1" name="text1" type="text" class="form-control"><button id="btn1" class="btn">Submit</button>
+                      <div class="card">
+                        <div class="card-body" is="dmx-repeat" id="repeat2">
+                          <h4 class="card-title">Card title</h4>
+                          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                        </div>
+                      </div>
+                     </div>
+                   </div>
                 </div>
-              </div>
             </div>
           </div>
         </div>
+      </div>
         <!-- Right Column (Search) -->
         <div class="col-lg-3 right-col">
           <div class="row h-50">
@@ -191,7 +215,7 @@
               <div class="container">
                 <div class="row">
                   <div class="col-md-6 offset-md-3">
-                    <h2 class="text-center">Event Calendar</h2>
+                    <dmx-calendar id="calendar1" views="dayGridMonth,dayGridWeek,dayGridDay"></dmx-calendar>
                     <div id="calendar"></div>
                   </div>
                 </div>

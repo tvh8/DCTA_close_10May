@@ -5,8 +5,8 @@ import os
 import pandas as pd
 from datetime import datetime
 from sqlalchemy import create_engine
-from DCTA.database import db as _db  # use an alias to avoid conflict
-from DCTA.models import Bill, Analysis, Event
+from database import db as _db  # use an alias to avoid conflict
+from models import Bill, Analysis, Event
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
@@ -39,7 +39,7 @@ def create_app(test_config=None):
 
         # Convert the QuerySet to JSON
         bills_list = [
-            {'bill_number': b.bill_number, 'bill_id': b.bill_id, 'state': b.state, 'st': b.st, 'session': b.session,
+            {'bill_number': b.bill_number, 'state': b.state, 'st': b.st, 'session': b.session,
              'introduced': b.introduced, 'latest_action': b.latest_action, 'latest_action_date': b.latest_action_date,
              'primary_sponsor': b.primary_sponsor, 'subjects': b.subjects, 'title': b.title, 'type': b.type,
              'url': b.url, 'bill_status': b.bill_status, 'bill_text_url': b.bill_text_url, 'timestamp': b.timestamp} for
