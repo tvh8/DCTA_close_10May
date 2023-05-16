@@ -10,6 +10,7 @@ from models import Bill, Analysis, Event
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
+print(os.getcwd())
 migrate = Migrate()
 
 def create_app(test_config=None):
@@ -27,6 +28,12 @@ def create_app(test_config=None):
 
     _db.init_app(app)  # Initialize SQLAlchemy with this app
     migrate.init_app(app, _db)  # And this for Flask-Migrate
+    app.config['SQLALCHEMY_ECHO'] = True
+
+    @app.cli.command("initdb")
+    def initdb_command():
+        # code to initialize the database goes here
+        _db.create_all()
 
     @app.route('/')
     def index():

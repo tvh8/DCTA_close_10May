@@ -9,9 +9,9 @@ app = create_app()
 def initdb():
     with app.app_context():
         db.create_all()
-        import_csv_to_db(db, 'output.csv')
-        import_analysis_csv_to_db(db, 'analysis_output.csv')
-        import_events_csv_to_db(db, 'events.csv')
+        import_csv_to_db('output.csv')
+        import_analysis_csv_to_db('analysis_output.csv')
+        import_events_csv_to_db('events.csv')
         print("Database initialized.")
 
 @app.cli.command("dropdb")

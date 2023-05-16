@@ -3,7 +3,6 @@ from models import Bill, Analysis, Event
 from database import db
 from sqlalchemy.exc import IntegrityError
 
-
 def import_csv_to_db(file_path):
     df = pd.read_csv(file_path)
     df.fillna('na', inplace=True)
