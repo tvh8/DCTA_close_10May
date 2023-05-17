@@ -46,39 +46,74 @@ def create_app(test_config=None):
 
         # Convert the QuerySet to JSON
         bills_list = [
-            {'bill_number': b.bill_number, 'state': b.state, 'st': b.st, 'session': b.session,
-             'introduced': b.introduced, 'latest_action': b.latest_action, 'latest_action_date': b.latest_action_date,
-             'primary_sponsor': b.primary_sponsor, 'subjects': b.subjects, 'title': b.title, 'type': b.type,
-             'url': b.url, 'bill_status': b.bill_status, 'bill_text_url': b.bill_text_url, 'timestamp': b.timestamp} for
-            b in bills]
+            {
+                'bill_number': b.bill_number,
+                'state': b.state,
+                'st': b.st,
+                'session': b.session,
+                'introduced': b.introduced,
+                'latest_action': b.latest_action,
+                'latest_action_date': b.latest_action_date,
+                'primary_sponsor': b.primary_sponsor,
+                'subjects': b.subjects,
+                'title': b.title,
+                'type': b.type,
+                'url': b.url,
+                'bill_status': b.bill_status,
+                'bill_text_url': b.bill_text_url,
+                'timestamp': b.timestamp,
+                'analysis': {
+                    'summary': b.analysis.summary,
+                    'crypto_impact': b.analysis.crypto_impact,
+                    'dcta_analysis': b.analysis.dcta_analysis,
+                    'timestamp': b.analysis.timestamp,
+                } if b.analysis else None,
+                'events': [
+                    {
+                        'event_date': e.event_date,
+                        'action': e.action,
+                    } for e in b.events
+                ]
+            } for b in bills]
 
         return jsonify(bills_list), 200
 
-    @app.route('/get_events', methods=['GET'])
-    def get_events():
-        # Query all events from the database
-        events = Event.query.all()
-
-        # Convert the QuerySet to JSON
-        events_list = [{'bill_number': e.bill_number, 'st': e.st, 'event_date': e.event_date, 'action': e.action} for e
-                       in events]
-
-        return jsonify(events_list), 200
-
     @app.route('/get_analysis/<bill_number>', methods=['GET'])
     def get_analysis(bill_number):
-        # Query for the analysis with the specified bill number
-        analysis = Analysis.query.filter_by(bill_number=bill_number).first()
+        # Query for the bill with the specified bill number
+        bill = Bill.query.filter_by(bill_number=bill_number).first()
 
-        if analysis is None:
+        if bill is None or bill.analysis is None:
             return jsonify({"error": "Bill analysis not found"}), 404
 
         # Convert the Analysis object to a dictionary
-        analysis_dict = {'bill_number': analysis.bill_number, 'summary': analysis.summary,
-                         'crypto_impact': analysis.crypto_impact, 'dcta_analysis': analysis.dcta_analysis,
-                         'timestamp': analysis.timestamp}
+        analysis_dict = {
+            'bill_number': bill.analysis.bill_number,
+            'summary': bill.analysis.summary,
+            'crypto_impact': bill.analysis.crypto_impact,
+            'dcta_analysis': bill.analysis.dcta_analysis,
+            'timestamp': bill.analysis.timestamp
+        }
 
         return jsonify(analysis_dict), 200
+
+    @app.route('/get_events/<bill_number>', methods=['GET'])
+    def get_events(bill_number):
+        # Query for the bill with the specified bill number
+        bill = Bill.query.filter_by(bill_number=bill_number).first()
+
+        if bill is None or len(bill.events) == 0:
+            return jsonify({"error": "No events found for this bill"}), 404
+
+        # Convert the events objects to a dictionary
+        events_list = [
+            {
+                'event_date': e.event_date,
+                'action': e.action,
+            } for e in bill.events
+        ]
+
+        return jsonify(events_list), 200
 
     @app.route('/analyze', methods=['GET'])
     def analyze():

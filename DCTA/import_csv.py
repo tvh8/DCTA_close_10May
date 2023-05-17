@@ -31,7 +31,6 @@ def import_csv_to_db(file_path):
 
     db.session.commit()
 
-
 def import_analysis_csv_to_db(file_path):
     df = pd.read_csv(file_path)
     df.fillna('na', inplace=True)
@@ -41,16 +40,27 @@ def import_analysis_csv_to_db(file_path):
     df = df.dropna(subset=['timestamp'])
 
     for _, row in df.iterrows():
-        analysis = Analysis(
-            bill_number=row['Bill Number'] if row['Bill Number'] != 'na' else 'na',
-            summary=row['Summary'] if row['Summary'] != 'na' else 'na',
-            crypto_impact=row['Crypto Impact'] if row['Crypto Impact'] != 'na' else 'na',
-            dcta_analysis=row['DCTA Analysis'] if row['DCTA Analysis'] != 'na' else 'na',
-            timestamp=row['timestamp'] if pd.notnull(row['timestamp']) else None
-        )
-        db.session.add(analysis)
+        bill = Bill.query.filter_by(
+            bill_number=row['Bill #'] if row['Bill #'] != 'na' else 'na',
+            st=row['St'] if row['St'] != 'na' else 'na',
+            session=row['Session'] if row['Session'] != 'na' else 'na',
+        ).first()
+
+        if bill:
+            analysis = Analysis(
+                bill_number=row['Bill #'] if row['Bill #'] != 'na' else 'na',
+                st=row['St'] if row['St'] != 'na' else 'na',
+                session=row['Session'] if row['Session'] != 'na' else 'na',
+                summary=row['Summary'] if row['Summary'] != 'na' else 'na',
+                crypto_impact=row['Crypto Impact'] if row['Crypto Impact'] != 'na' else 'na',
+                dcta_analysis=row['DCTA Analysis'] if row['DCTA Analysis'] != 'na' else 'na',
+                timestamp=row['timestamp'] if pd.notnull(row['timestamp']) else None
+            )
+            bill.analyses.append(analysis)  # Corrected here
+            db.session.add(analysis)
 
     db.session.commit()
+
 def import_events_csv_to_db(file_path):
     df = pd.read_csv(file_path)
     df.fillna('na', inplace=True)
@@ -60,12 +70,21 @@ def import_events_csv_to_db(file_path):
     df['Event Date'] = pd.to_datetime(df['Event Date'], format='%b %d %Y', errors='coerce')
 
     for _, row in df.iterrows():
-        event = Event(
+        bill = Bill.query.filter_by(
             bill_number=row['Bill #'] if row['Bill #'] != 'na' else 'na',
+            state=row['State'] if row['State'] != 'na' else 'na',
             st=row['St'] if row['St'] != 'na' else 'na',
-            event_date=row['Event Date'] if pd.notnull(row['Event Date']) else None,
-            action=row['Action'] if row['Action'] != 'na' else 'na'
-        )
-        db.session.add(event)
+            session=row['Session']
+        ).first()
+
+        if bill:
+            event = Event(
+                bill_number=row['Bill #'] if row['Bill #'] != 'na' else 'na',
+                st=row['St'] if row['St'] != 'na' else 'na',
+                event_date=row['Event Date'] if pd.notnull(row['Event Date']) else None,
+                action=row['Action'] if row['Action'] != 'na' else 'na'
+            )
+            bill.events.append(event)  # Corrected here
+            db.session.add(event)
 
     db.session.commit()
