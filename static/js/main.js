@@ -10,10 +10,10 @@ function loadRecentData() {
         table.empty();
         recentData.forEach(function (row) {
             var tr = $('<tr>');
-            tr.append($('<td>').text(row['Bill #']));
-            tr.append($('<td>').text(row['St']));
-            tr.append($('<td>').text(row['Short Subject']));
-            tr.append($('<td>').text(row['Introduced']));
+            tr.append($('<td>').text(row['bill_number']));
+            tr.append($('<td>').text(row['st']));
+            tr.append($('<td>').text(row['short_subject']));
+            tr.append($('<td>').text(row['introduced']));
             tr.click(function () {
                 populateSelectedBillCard(row);
             });
@@ -33,10 +33,10 @@ function loadRecentActionsData() {
         table.empty();
         recentData.forEach(function (row) {
             var tr = $('<tr>');
-            tr.append($('<td>').text(row['Bill #']));
-            tr.append($('<td>').text(row['St']));
-            tr.append($('<td>').text(row['Short Subject']));
-            tr.append($('<td>').text(row['Latest Action Date']));
+            tr.append($('<td>').text(row['bill_number']));
+            tr.append($('<td>').text(row['st']));
+            tr.append($('<td>').text(row['short_subject']));
+            tr.append($('<td>').text(row['latest_action_date']));
             tr.click(function () {
                 populateSelectedBillCard(row);
             });
@@ -58,22 +58,22 @@ function populateSelectedBillCard(bill) {
     console.log(bill);
 
     // Set the new data
-    $('#selectedBillNumber').text(bill['Bill #'] || '');
-    $('#selectedBillState').text(bill['State'] || '');
-    $('#selectedBillSession').text(bill['Session'] || '');
-    $('#selectedBillIntroduced').text(bill['Introduced'] || '');
-    $('#selectedBillLatestAction').text(bill['Latest Action'] || '');
-    $('#selectedBillLatestActionDate').text(bill['Latest Action Date'] || '');
-    $('#selectedBillPrimarySponsor').text(bill['Primary Sponsor'] || '');
-    $('#selectedBillSubject').text(bill['Subject'] || '');
-    $('#selectedBillSummary').text(bill['Summary'] || '');
-    $('#selectedBillCryptoImpact').text(bill['Crypto Impact'] || '');
-    $('#selectedBillDCTAAnalysis').text(bill['DCTA Analysis'] || '');
+    $('#selectedBillNumber').text(bill['bill_number'] || '');
+    $('#selectedBillState').text(bill['state'] || '');
+    $('#selectedBillSession').text(bill['session'] || '');
+    $('#selectedBillIntroduced').text(bill['introduced'] || '');
+    $('#selectedBillLatestAction').text(bill['latest_action'] || '');
+    $('#selectedBillLatestActionDate').text(bill['latest_action_date'] || '');
+    $('#selectedBillPrimarySponsor').text(bill['primary_sponsor'] || '');
+    $('#selectedBillSubject').text(bill['subject'] || '');
+    $('#selectedBillSummary').text(bill['summary'] || '');
+    $('#selectedBillCryptoImpact').text(bill['crypto_impact'] || '');
+    $('#selectedBillDCTAAnalysis').text(bill['dcta_analysis'] || '');
     $('#selectedBilltimestamp').text(bill['timestamp'] || '');
-    $('#latestBillBtn').data('latestBillTextUrl', bill['Latest Bill Text'] || '');
-    $('#openStatesBtn').data('openStatesUrl', bill['Link'] || '');
+    $('#latestBillBtn').data('latestBillTextUrl', bill['latest_bill_text_url'] || '');
+    $('#openStatesBtn').data('openStatesUrl', bill['link'] || '');
 
-    populateSelectedBillAnalysis(bill['Bill #'] || '');
+    populateSelectedBillAnalysis(bill['bill_number'] || '');
 }
 
 function previewBill(billId) {
@@ -82,13 +82,13 @@ function previewBill(billId) {
         var previewContainer = $('.preview-container');
         previewContainer.empty();
         // Add the bill's details to the preview container
-        previewContainer.append($('<h4>').text('Bill #' + bill['Bill #']));
-        previewContainer.append($('<p>').text('State: ' + bill['State']));
-        previewContainer.append($('<p>').text('Subject: ' + bill['Subject']));
-        previewContainer.append($('<p>').text('Introduced: ' + bill['Introduced']));
-        previewContainer.append($('<p>').text('Latest Action: ' + bill['Latest Action']));
-        previewContainer.append($('<p>').text('Position: ' + bill['Position']));
-        previewContainer.append($('<p>').text('Primary Sponsor: ' + bill['Primary Sponsor']));
+        previewContainer.append($('<h4>').text('bill_number' + bill['bill_number']));
+        previewContainer.append($('<p>').text('state: ' + bill['state']));
+        previewContainer.append($('<p>').text('subject: ' + bill['subject']));
+        previewContainer.append($('<p>').text('introduced: ' + bill['introduced']));
+        previewContainer.append($('<p>').text('latest_action: ' + bill['latest_action']));
+        previewContainer.append($('<p>').text('position: ' + bill['position']));
+        previewContainer.append($('<p>').text('primary_sponsor: ' + bill['primary_sponsor']));
     });
 }
 
@@ -142,9 +142,9 @@ $(document).ready(function () {
             bill_session: bill_session
         }, function (data) {
             // Update the displayed data with the new analysis results
-            $('#selectedBillSummary').text(data['Summary']);
-            $('#selectedBillCryptoImpact').text(data['Crypto Impact']);
-            $('#selectedBillDCTAAnalysis').text(data['DCTA Analysis']);
+            $('#selectedBillSummary').text(data['summary']);
+            $('#selectedBillCryptoImpact').text(data['crypto_impact']);
+            $('#selectedBillDCTAAnalysis').text(data['dcta_analysis']);
             $('#selectedBilltimestamp').text(data['timestamp']);
 
             // Set a timeout to refresh the page 10 seconds after the data is received
@@ -187,9 +187,9 @@ function populateSelectedBillAnalysis(billNumber) {
     $.get('/get_analysis/' + billNumber, function (data) {
         if (data) {
             // Set the new data
-            $('#selectedBillSummary').text(data['Summary'] || '');
-            $('#selectedBillCryptoImpact').text(data['Crypto Impact'] || '');
-            $('#selectedBillDCTAAnalysis').text(data['DCTA Analysis'] || '');
+            $('#selectedBillSummary').text(data['summary'] || '');
+            $('#selectedBillCryptoImpact').text(data['crypto_impact'] || '');
+            $('#selectedBillDCTAAnalysis').text(data['dcta_analysis'] || '');
             $('#selectedBilltimestamp').text(data['timestamp'] || '');
         }
         console.log(data)
@@ -231,9 +231,9 @@ function populateTable(data) {
     table.empty();
     data.forEach(function (row) {
         var tr = $('<tr>');
-        tr.append($('<td>').text(row['Bill #']));
-        tr.append($('<td>').text(row['St']));
-        tr.append($('<td>').text(row['Subject']));
+        tr.append($('<td>').text(row['bill_number']));
+        tr.append($('<td>').text(row['st']));
+        tr.append($('<td>').text(row['subject']));
         tr.click(function () {
             populateSelectedBillCard(row);
         });
