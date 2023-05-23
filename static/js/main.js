@@ -55,6 +55,7 @@ function loadAllData() {
 function populateSelectedBillCard(bill) {
     $('#selectedBillNumber').text(bill['bill_number'] || '');
     $('#selectedBillState').text(bill['state'] || '');
+    $('#selectedBillSt').text(bill['st'] || '');
     $('#selectedBillSession').text(bill['session'] || '');
     $('#selectedBillIntroduced').text(bill['introduced'] || '');
     $('#selectedBillLatestAction').text(bill['latest_action'] || '');
@@ -63,12 +64,13 @@ function populateSelectedBillCard(bill) {
     $('#selectedBillSubject').text(bill['subject'] || '');
     $('#latestBillBtn').data('latestBillTextUrl', bill['latest_bill_text_url'] || '');
     $('#openStatesBtn').data('openStatesUrl', bill['open_states_url'] || '');
+    $('#analyzeBtn').data('billId', bill['id'] || '');
     populateSelectedBillAnalysis(bill['id'] || '');
 }
 function populateSelectedBillAnalysis(billId) {
     $('#repeatSummary').empty();
     $.get('/get_analysis/' + billId, function (data) {
-        var analyses = data;
+        var analyses = data.sort((a, b) => b.timestamp.localeCompare(a.timestamp)); // Sort by most recent
         for (var i = 0; i < analyses.length; i++) {
             var analysis = analyses[i];
             var analysisDiv = $('<div class="card"></div>');
@@ -79,7 +81,7 @@ function populateSelectedBillAnalysis(billId) {
     });
     $('#repeatCryptoImpact').empty();
     $.get('/get_analysis/' + billId, function (data) {
-        var analyses = data;
+        var analyses = data.sort((a, b) => b.timestamp.localeCompare(a.timestamp)); // Sort by most recent
         for (var i = 0; i < analyses.length; i++) {
             var analysis = analyses[i];
             var analysisDiv = $('<div class="card"></div>');
@@ -90,7 +92,7 @@ function populateSelectedBillAnalysis(billId) {
     });
     $('#repeatDCTA').empty();
     $.get('/get_analysis/' + billId, function (data) {
-        var analyses = data;
+        var analyses = data.sort((a, b) => b.timestamp.localeCompare(a.timestamp)); // Sort by most recent
         for (var i = 0; i < analyses.length; i++) {
             var analysis = analyses[i];
             var analysisDiv = $('<div class="card"></div>');
@@ -116,7 +118,6 @@ $(document).ready(function () {
     loadRecentData();
     loadRecentActionsData();
     loadAllData()
-    loadEventsAndPopulateCalendar()
     $('#latestBillBtn').click(function() {
         var url = $(this).data('latestBillTextUrl');
         if(url && url !== '') {
@@ -134,27 +135,24 @@ $(document).ready(function () {
         }
     });
     $('#analyzeBtn').click(function () {
+        $('#spinner').removeAttr('hidden');
         // Get the actual values from the selected bill
-        var latest_bill_text = $('#latestBillBtn').data('latestBillTextUrl');
+        var latestBillTextUrl = $('#latestBillBtn').data('latestBillTextUrl');
         var bill_number = $('#selectedBillNumber').text();
-        var bill_state = $('#selectedBillState').text();
+        var st = $('#selectedBillSt').text();
         var bill_session = $('#selectedBillSession').text();
+        var bill_id = $('#analyzeBtn').data('billId')
         // Call the backend route to execute the OpenAI_analysis.py script
         $.get('/analyze', {
-            latest_bill_text: latest_bill_text,
+            latestBillTextUrl: latestBillTextUrl,
             bill_number: bill_number,
-            bill_state: bill_state,
-            bill_session: bill_session
+            st: st,
+            session: bill_session,
+            bill_id: bill_id
         }, function (data) {
             // Update the displayed data with the new analysis results
-            $('#selectedBillSummary').text(data['summary']);
-            $('#selectedBillCryptoImpact').text(data['crypto_impact']);
-            $('#selectedBillDCTAAnalysis').text(data['dcta_analysis']);
-            $('#selectedBilltimestamp').text(data['timestamp']);
-            // Set a timeout to refresh the page 10 seconds after the data is received
-            setTimeout(function () {
-                location.reload();
-            }, 10000);  // 10000 milliseconds = 10 second
+            populateSelectedBillAnalysis(bill_id);
+            $('#spinner').attr('hidden', '');
         });
     });
     $('#createLetterbtn').click(function () {
@@ -215,30 +213,6 @@ function populateTable(data) {
 window.onload = function() {
     document.getElementById("defaultOpen").click();
 };
-document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        plugins: ['interaction', 'dayGrid', 'timeGrid', 'list'],
-        header: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        defaultDate: '2023-05-19',
-        navLinks: true, // can click day/week names to navigate views
-        selectable: true,
-        selectMirror: true,
-        select: function(arg) {
-            // code to run when a date range is selected
-        },
-        eventLimit: true, // allow "more" link when too many events
-        events: [
-            // your event data here
-        ]
-    });
-
-    calendar.render();
-});
 window.addEventListener('load', function() {
   document.getElementById("defaultOpen").click();
   loadDataAndPopulateTables();  // Call the function from tables.js

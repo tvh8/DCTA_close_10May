@@ -1,4 +1,3 @@
-// Fetch data and populate tables
 async function loadDataAndPopulateTables() {
   // Fetch all bills
   const responseBills = await fetch('/get_bills');
@@ -14,5 +13,3 @@ async function loadDataAndPopulateTables() {
   // Populate 'Recent Actions' table
   populateTable(recentActions, document.getElementById('recent-actions-table-body'), false);
 }
-
-// Removed window.onload = loadDataAndPopulateTables;
